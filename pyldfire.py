@@ -65,11 +65,9 @@ class WildFire(object):
         if response.status_code != 200:
             raise WildFireException(WildFire.errors[response.status_code])
 
-    def __init__(self, api_key, host="wildfire.paloaltonetworks.com",
-        proxies=None, verify=True):
+    def __init__(self, api_key, host="wildfire.paloaltonetworks.com", proxies=None, verify=True):
         self.api_root = "https://{0}{1}".format(self.host, "/publicapi")
         self.key = api_key
-        
         self.session = Session()
         self.session.verify = verify
         self.session.proxies = proxies
