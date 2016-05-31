@@ -60,3 +60,10 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# PyCharm project files
+.idea/
+
+test.py
+report.pdf
+test.exe
