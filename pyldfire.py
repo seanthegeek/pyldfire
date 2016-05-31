@@ -67,6 +67,7 @@ class WildFire(object):
 
     def __init__(self, api_key, host="wildfire.paloaltonetworks.com", proxies=None, verify=True):
         self.api_key = api_key
+        self.host = host
         self.api_root = "https://{0}{1}".format(self.host, "/publicapi")
         self.session = Session()
         self.session.proxies = proxies
@@ -115,10 +116,6 @@ class WildFire(object):
         return xmltodict.parse(response.text)['wildfire']['upload-file-info']
 
     def submit_url(self, urls):
-        request_url = "{0}{1}".format(self.api_root, "/submit/link")
-        data = dict(apikey=self.api_key, link=urls)
-        response = self.session.post(request_url, data=data)
-
         multi = False
         if type(urls) == list:
             if len(urls) == 1:
@@ -135,7 +132,7 @@ class WildFire(object):
             for i in range(len(results)):
                 results[i]["verdict"] = WildFire.verdicts[int(results[i]["verdict"])]
         else:
-            request_url = "{0}{1}".format(self.api_root, "/get/verdict")
+            request_url = "{0}{1}".format(self.api_root, "/submit/link")
             data = dict(apikey=self.api_key, url=urls)
             response = self.session.post(request_url, data=data)
             results = xmltodict.parse(response.text)['wildfire']['submit-link-info']
