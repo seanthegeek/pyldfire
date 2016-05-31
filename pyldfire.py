@@ -58,7 +58,7 @@ class WildFire(object):
 
     @staticmethod
     def raise_errors(response, *args, **kwargs):
-        if response.headers['content-type'].lower() == "text/xml":
+        if response.headers['content-type'].lower() == "text/xml" and len(response.text) > 0:
             results = xmltodict.parse(response.text)
             if "error" in results.keys():
                 raise WildFireException(results["error"]["error-message"])
