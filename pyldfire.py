@@ -35,7 +35,7 @@ class WildFireException(Exception):
 
 class WildFire(object):
     errors = {
-        401: "API key invalid",
+        401: "API key is invalid",
         403: "Permission denied",
         404: "Not found",
         405: "Method other than POST used",
@@ -66,11 +66,11 @@ class WildFire(object):
             raise WildFireException(WildFire.errors[response.status_code])
 
     def __init__(self, api_key, host="wildfire.paloaltonetworks.com", proxies=None, verify=True):
+        self.api_key = api_key
         self.api_root = "https://{0}{1}".format(self.host, "/publicapi")
-        self.key = api_key
         self.session = Session()
-        self.session.verify = verify
         self.session.proxies = proxies
+        self.session.verify = verify
         self.session.hooks = dict(response=WildFire.raise_errors)
         self.session.headers.update({"User-Agent": "pyldfire/{0}".format(__version__)})
 
@@ -85,14 +85,14 @@ class WildFire(object):
             request_url = "{0}{1}".format(self.api_root, "/get/verdicts")
             hash_file = list_to_file(file_hashes)
             files = dict(file=("hashes", hash_file))
-            data = dict(apikey=self.key)
+            data = dict(apikey=self.api_key)
             response = self.session.post(request_url, data=data, files=files)
             results = xmltodict.parse(response.text)['wildfire']['get-verdict-info']
             for i in range(len(results)):
                 results[i]["verdict"] = WildFire.verdicts[int(results[i]["verdict"])]
         else:
             request_url = "{0}{1}".format(self.api_root, "/get/verdict")
-            data = dict(apikey=self.key, hash=file_hashes)
+            data = dict(apikey=self.api_key, hash=file_hashes)
             response = self.session.post(request_url, data=data)
             verdict = int(xmltodict.parse(response.text)['wildfire']['get-verdict-info']['verdict'])
             results = WildFire.verdicts[verdict]
@@ -101,7 +101,7 @@ class WildFire(object):
 
     def submit_file(self, file_obj, filename="sample"):
         url = "{0}{1}".format(self.api_root, "/submit/file")
-        data = dict(apikey=self.key)
+        data = dict(apikey=self.api_key)
         files = dict(file=(filename, file_obj))
         response = self.session.post(url, data=data, files=files)
 
@@ -109,14 +109,14 @@ class WildFire(object):
 
     def submit_remote_file(self, url):
         request_url = "{0}{1}".format(self.api_root, "/submit/url")
-        data = dict(apikey=self.key, url=url)
+        data = dict(apikey=self.api_key, url=url)
         response = self.session.post(request_url, data=data)
 
         return xmltodict.parse(response.text)['wildfire']['upload-file-info']
 
     def submit_url(self, urls):
         request_url = "{0}{1}".format(self.api_root, "/submit/link")
-        data = dict(apikey=self.key, link=urls)
+        data = dict(apikey=self.api_key, link=urls)
         response = self.session.post(request_url, data=data)
 
         multi = False
@@ -129,14 +129,14 @@ class WildFire(object):
             request_url = "{0}{1}".format(self.api_root, "/submit/links")
             url_file = list_to_file(urls)
             files = dict(file=("urls", url_file))
-            data = dict(apikey=self.key)
+            data = dict(apikey=self.api_key)
             response = self.session.post(request_url, data=data, files=files)
             results = xmltodict.parse(response.text)['wildfire']['submit-link-info']
             for i in range(len(results)):
                 results[i]["verdict"] = WildFire.verdicts[int(results[i]["verdict"])]
         else:
             request_url = "{0}{1}".format(self.api_root, "/get/verdict")
-            data = dict(apikey=self.key, url=urls)
+            data = dict(apikey=self.api_key, url=urls)
             response = self.session.post(request_url, data=data)
             results = xmltodict.parse(response.text)['wildfire']['submit-link-info']
 
@@ -144,7 +144,7 @@ class WildFire(object):
 
     def _get_report(self, file_hash, report_format, stream=False):
         request_url = "{0}{1}".format(self.api_root, "/get/report")
-        data = dict(apikey=self.key, hash=file_hash, format=report_format)
+        data = dict(apikey=self.api_key, hash=file_hash, format=report_format)
         response = self.session.post(request_url, data=data, stream=stream)
         if report_format == "pdf":
             response = response.content
@@ -161,13 +161,13 @@ class WildFire(object):
 
     def get_sample(self, file_hash):
         request_url = "{0}{1}".format(self.api_root, "/get/sample")
-        data = dict(apikey=self.key, hash=file_hash)
+        data = dict(apikey=self.api_key, hash=file_hash)
 
         return self.session.post(request_url, data=data, stream=True).content
 
     def get_pcap(self, file_hash, platform=None):
         request_url = "{0}{1}".format(self.api_root, "/get/pcap")
-        data = dict(apikey=self.key, hash=file_hash)
+        data = dict(apikey=self.api_key, hash=file_hash)
         if platform is not None:
             data['platform'] = platform
 
