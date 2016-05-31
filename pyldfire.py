@@ -157,7 +157,7 @@ class WildFire(object):
         return self._get_report(file_hash, 'xml')
 
     def get_pdf_report(self, file_hash):
-        return  self._get_report(file_hash, 'pdf', stream=True)
+        return self._get_report(file_hash, 'pdf', stream=True)
 
     def get_sample(self, file_hash):
         request_url = "{0}{1}".format(self.api_root, "/get/sample")
