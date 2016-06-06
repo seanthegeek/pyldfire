@@ -58,17 +58,18 @@ A Python module for Palo Alto Networks` WildFire API
 ##### `get_pcap(self, file_hash, platform=None)`
 
 > Gets a pcap from a sample analysis
->             Args:
->                 file_hash (str): A hash of a sample
->                 platform (int): One of the following integers:
+>             
+>                 Args:
+>                     file_hash (str): A hash of a sample
+>                     platform (int): One of the following integers:
 >
->                 1: Windows XP, Adobe Reader 9.3.3, Office 2003
->                 2: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
->                 3: Windows XP, Adobe Reader 11, Flash 11, Office 2010
->                 4: Windows 7 32-bit, Adobe Reader 11, Flash 11, Office 2010
->                 5: Windows 7 64bit, Adobe Reader 11, Flash 11, Office 2010
->                 50: Mac OS X Mountain Lion
->                 201: Android 2.3, API 10, avd2.3.
+>                     1: Windows XP, Adobe Reader 9.3.3, Office 2003
+>                     2: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
+>                     3: Windows XP, Adobe Reader 11, Flash 11, Office 2010
+>                     4: Windows 7 32-bit, Adobe Reader 11, Flash 11, Office 2010
+>                     5: Windows 7 64bit, Adobe Reader 11, Flash 11, Office 2010
+>                     50: Mac OS X Mountain Lion
+>                     201: Android 2.3, API 10, avd2.3.
 >
 >             Returns:
 >                 bytes: The PCAP bytes
@@ -80,7 +81,8 @@ A Python module for Palo Alto Networks` WildFire API
 
 ##### `get_pdf_report(self, file_hash)`
 
-> GGets analysis results as a PDF
+> Gets analysis results as a PDF
+>
 >         Args:
 >             file_hash: A hash of a sample of a file
 >
@@ -95,6 +97,7 @@ A Python module for Palo Alto Networks` WildFire API
 ##### `get_report(self, file_hash)`
 
 > Gets analysis results as structured data
+>
 >         Args:
 >             file_hash (str): A hash of a sample
 >
@@ -106,6 +109,7 @@ A Python module for Palo Alto Networks` WildFire API
 ##### `get_sample(self, file_hash)`
 
 > Gets a sample file
+>
 >         Args:
 >             file_hash (str): A hash of a sample
 >
@@ -174,13 +178,14 @@ A Python module for Palo Alto Networks` WildFire API
 ##### `submit_urls(self, urls)`
 
 > Submits a URL to a web page for analysis
-> Args:
+>
+>     Args:
 >     urls (str): A single URL
 >     urls (list): A list of URLs
 >
-> Returns:
->     dict: IF a single URL is passed, a dictionary of analysis results
->     list: If multiple URLs are passed, a list of corresponding dictionaries containing analysis results
+>     Returns:
+>         dict: IF a single URL is passed, a dictionary of analysis results
+>         list: If multiple URLs are passed, a list of corresponding dictionaries containing analysis results
 >
-> Raises:
->      WildFireException: If an API error occurs
+>     Raises:
+>          WildFireException: If an API error occurs

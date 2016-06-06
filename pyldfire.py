@@ -250,7 +250,7 @@ class WildFire(object):
         return self._get_report(file_hash, 'xml')
 
     def get_pdf_report(self, file_hash):
-        """GGets analysis results as a PDF
+        """Gets analysis results as a PDF
         Args:
             file_hash: A hash of a sample of a file
 
