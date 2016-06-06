@@ -184,7 +184,7 @@ A Python module for Palo Alto Networks` WildFire API
 >         urls (list): A list of URLs
 >
 >     Returns:
->         dict: IF a single URL is passed, a dictionary of analysis results
+>         dict: If a single URL is passed, a dictionary of analysis results
 >         list: If multiple URLs are passed, a list of corresponding dictionaries containing analysis results
 >
 >     Raises:
