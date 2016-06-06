@@ -25,7 +25,8 @@ __author__ = 'Sean Whalen'
 __version__ = '7.1'
 
 
-def list_to_file(l):
+def _list_to_file(l):
+    """Converts a list to a BytesIO object. One item per line"""
     return StringIO('\n'.join(l))
 
 
@@ -35,7 +36,7 @@ class WildFireException(RuntimeError):
 
 
 class WildFire(object):
-    errors = {
+    _errors = {
         401: "API key is invalid",
         403: "Permission denied. This can occur when attempting to download benign or greyware samples.",
         404: "Not found",
@@ -48,7 +49,7 @@ class WildFire(object):
         513: "File upload failed"
     }
 
-    verdicts = {
+    _verdicts = {
         0: "Benign",
         1: "Malware",
         2: "Greyware",
@@ -59,12 +60,13 @@ class WildFire(object):
 
     @staticmethod
     def _raise_errors(response, *args, **kwargs):
+        """Requests response processing hook"""
         if response.headers['content-type'].lower() == "text/xml" and len(response.text) > 0:
             results = xmltodict.parse(response.text)
             if "error" in results.keys():
                 raise WildFireException(results["error"]["error-message"])
         if response.status_code != 200:
-            raise WildFireException(WildFire.errors[response.status_code])
+            raise WildFireException(WildFire._errors[response.status_code])
 
     def __init__(self, api_key, host="wildfire.paloaltonetworks.com", proxies=None, verify=True):
         """Initializes the WildFire class
@@ -77,6 +79,7 @@ class WildFire(object):
             verify (bool): Verify the certificate
             verify (str): A path to a CA cert bundle
         """
+
         self.api_key = api_key
         self.host = host
         self.api_root = "https://{0}{1}".format(self.host, "/publicapi")
@@ -86,7 +89,7 @@ class WildFire(object):
         self.session.hooks = dict(response=WildFire._raise_errors)
         self.session.headers.update({"User-Agent": "pyldfire/{0}".format(__version__)})
 
-    def get_verdict(self, file_hashes):
+    def get_verdicts(self, file_hashes):
         """Gets the verdict for one or more samples
 
         Args:
@@ -95,13 +98,12 @@ class WildFire(object):
 
         Returns:
             str: If a single file hash is passed, a string containing the verdict
-            list: If multiple hashes a passed, a list of dictionaries containing information for each sample, including
-            the verdict.
+            list: If multiple hashes a passed, a list of corresponding list of _verdicts
 
         Raises:
             WildFireException: If an API error occurs
-
         """
+
         multi = False
         if type(file_hashes) == list:
             if len(file_hashes) == 1:
@@ -109,20 +111,21 @@ class WildFire(object):
             elif len(file_hashes) > 1:
                 multi = True
         if multi:
-            request_url = "{0}{1}".format(self.api_root, "/get/verdicts")
-            hash_file = list_to_file(file_hashes)
+            request_url = "{0}{1}".format(self.api_root, "/get/_verdicts")
+            hash_file = _list_to_file(file_hashes)
             files = dict(file=("hashes", hash_file))
             data = dict(apikey=self.api_key)
             response = self.session.post(request_url, data=data, files=files)
             results = xmltodict.parse(response.text)['wildfire']['get-verdict-info']
             for i in range(len(results)):
-                results[i]["verdict"] = WildFire.verdicts[int(results[i]["verdict"])]
+                results[i]["verdict"] = WildFire._verdicts[int(results[i]["verdict"])]
+            results = map(lambda result: result["verdict"], results)
         else:
             request_url = "{0}{1}".format(self.api_root, "/get/verdict")
             data = dict(apikey=self.api_key, hash=file_hashes)
             response = self.session.post(request_url, data=data)
             verdict = int(xmltodict.parse(response.text)['wildfire']['get-verdict-info']['verdict'])
-            results = WildFire.verdicts[verdict]
+            results = WildFire._verdicts[verdict]
 
         return results
 
@@ -138,8 +141,8 @@ class WildFire(object):
 
         Raises:
              WildFireException: If an API error occurs
-
         """
+
         url = "{0}{1}".format(self.api_root, "/submit/file")
         data = dict(apikey=self.api_key)
         files = dict(file=(filename, file_obj))
@@ -154,7 +157,7 @@ class WildFire(object):
             This is for submitting files located at remote URLs, not web pages.
 
         See Also:
-            WildFire.submit_url(self, url)
+            `submit_urls(self, url)`
 
         Args:
             url (str): The URL where the file is located
@@ -164,16 +167,15 @@ class WildFire(object):
 
         Raises:
              WildFireException: If an API error occurs
-
-
         """
+
         request_url = "{0}{1}".format(self.api_root, "/submit/url")
         data = dict(apikey=self.api_key, url=url)
         response = self.session.post(request_url, data=data)
 
         return xmltodict.parse(response.text)['wildfire']['upload-file-info']
 
-    def submit_url(self, urls):
+    def submit_urls(self, urls):
         """
         Submits a URL to a web page for analysis
         Args:
@@ -186,8 +188,8 @@ class WildFire(object):
 
         Raises:
              WildFireException: If an API error occurs
-
         """
+
         multi = False
         if type(urls) == list:
             if len(urls) == 1:
@@ -196,13 +198,13 @@ class WildFire(object):
                 multi = True
         if multi:
             request_url = "{0}{1}".format(self.api_root, "/submit/links")
-            url_file = list_to_file(urls)
+            url_file = _list_to_file(urls)
             files = dict(file=("urls", url_file))
             data = dict(apikey=self.api_key)
             response = self.session.post(request_url, data=data, files=files)
             results = xmltodict.parse(response.text)['wildfire']['submit-link-info']
             for i in range(len(results)):
-                results[i]["verdict"] = WildFire.verdicts[int(results[i]["verdict"])]
+                results[i]["verdict"] = WildFire._verdicts[int(results[i]["verdict"])]
         else:
             request_url = "{0}{1}".format(self.api_root, "/submit/link")
             data = dict(apikey=self.api_key, url=urls)
@@ -224,8 +226,8 @@ class WildFire(object):
 
         Raises:
              WildFireException: If an API error occurs
-
         """
+
         request_url = "{0}{1}".format(self.api_root, "/get/report")
         data = dict(apikey=self.api_key, hash=file_hash, format=report_format)
         response = self.session.post(request_url, data=data, stream=stream)
@@ -239,12 +241,12 @@ class WildFire(object):
     def get_report(self, file_hash):
         """Gets analysis results as structured data
         Args:
-            file_hash (str(: A hash of a sample
+            file_hash (str): A hash of a sample
 
         Returns:
             dict: Analysis results
-
         """
+
         return self._get_report(file_hash, 'xml')
 
     def get_pdf_report(self, file_hash):
@@ -253,7 +255,7 @@ class WildFire(object):
             file_hash: A hash of a sample of a file
 
         Returns:
-            bytes: The PDF bytes
+            bytes: The PDF
 
         Raises:
              WildFireException: If an API error occurs
@@ -266,7 +268,7 @@ class WildFire(object):
             file_hash (str): A hash of a sample
 
         Returns:
-            bytes: The sample file
+            bytes: The sample
 
         Raises:
              WildFireException: If an API error occurs
@@ -283,17 +285,11 @@ class WildFire(object):
                 platform (int): One of the following integers:
 
                 1: Windows XP, Adobe Reader 9.3.3, Office 2003
-
                 2: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
-
                 3: Windows XP, Adobe Reader 11, Flash 11, Office 2010
-
                 4: Windows 7 32-bit, Adobe Reader 11, Flash 11, Office 2010
-
                 5: Windows 7 64bit, Adobe Reader 11, Flash 11, Office 2010
-
                 50: Mac OS X Mountain Lion
-
                 201: Android 2.3, API 10, avd2.3.
 
             Returns:
@@ -302,6 +298,7 @@ class WildFire(object):
             Raises:
                  WildFireException: If an API error occurs
             """
+
         request_url = "{0}{1}".format(self.api_root, "/get/pcap")
         data = dict(apikey=self.api_key, hash=file_hash)
         if platform is not None:
@@ -313,6 +310,7 @@ class WildFire(object):
         """Gets a unique, benign malware test file that will trigger an alert on Palo Alto Networks' firewalls
 
         Returns:
-            bytes: Malware test file bytes
+            bytes: A malware test file
         """
+
         return self.session.get("{0}{1}".format(self.api_root, "/test/pe"), stream=True).content
