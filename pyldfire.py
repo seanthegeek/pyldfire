@@ -245,6 +245,9 @@ class WildFire(object):
 
         Returns:
             dict: Analysis results
+
+        Raises:
+            WildFireException: If an API error occurs
         """
 
         return self._get_report(file_hash, 'xml')
