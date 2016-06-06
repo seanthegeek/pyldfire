@@ -104,8 +104,8 @@ A Python module for Palo Alto Networks` WildFire API
 >         Returns:
 >             dict: Analysis results
 >
->          Raises:
->              WildFireException: If an API error occurs
+>         Raises:
+>             WildFireException: If an API error occurs
 
 
 ##### `get_sample(self, file_hash)`
