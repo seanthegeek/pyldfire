@@ -59,17 +59,17 @@ A Python module for Palo Alto Networks` WildFire API
 
 > Gets a pcap from a sample analysis
 >             
->                 Args:
->                     file_hash (str): A hash of a sample
->                     platform (int): One of the following integers:
+>             Args:
+>                 file_hash (str): A hash of a sample
+>                 platform (int): One of the following integers:
 >
->                     1: Windows XP, Adobe Reader 9.3.3, Office 2003
->                     2: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
->                     3: Windows XP, Adobe Reader 11, Flash 11, Office 2010
->                     4: Windows 7 32-bit, Adobe Reader 11, Flash 11, Office 2010
->                     5: Windows 7 64bit, Adobe Reader 11, Flash 11, Office 2010
->                     50: Mac OS X Mountain Lion
->                     201: Android 2.3, API 10, avd2.3.
+>                 1: Windows XP, Adobe Reader 9.3.3, Office 2003
+>                 2: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
+>                 3: Windows XP, Adobe Reader 11, Flash 11, Office 2010
+>                 4: Windows 7 32-bit, Adobe Reader 11, Flash 11, Office 2010
+>                 5: Windows 7 64bit, Adobe Reader 11, Flash 11, Office 2010
+>                 50: Mac OS X Mountain Lion
+>                 201: Android 2.3, API 10, avd2.3.
 >
 >             Returns:
 >                 bytes: The PCAP bytes
