@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""A Python module for Palo Alto Network's WildFire API
+"""A Python module for Palo Alto Networks' WildFire API
 
 Copyright 2016 Sean Whalen
 
