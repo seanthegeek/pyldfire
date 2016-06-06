@@ -180,8 +180,8 @@ A Python module for Palo Alto Networks` WildFire API
 > Submits a URL to a web page for analysis
 >
 >     Args:
->     urls (str): A single URL
->     urls (list): A list of URLs
+>         urls (str): A single URL
+>         urls (list): A list of URLs
 >
 >     Returns:
 >         dict: IF a single URL is passed, a dictionary of analysis results
