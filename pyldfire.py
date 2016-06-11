@@ -22,7 +22,7 @@ from requests import Session
 import xmltodict
 
 __author__ = 'Sean Whalen'
-__version__ = '7.1.0'
+__version__ = '7.1.1'
 
 
 def _list_to_file(l):
@@ -120,7 +120,7 @@ class WildFire(object):
             elif len(file_hashes) > 1:
                 multi = True
         if multi:
-            request_url = "{0}{1}".format(self.api_root, "/get/_verdicts")
+            request_url = "{0}{1}".format(self.api_root, "/get/verdicts")
             hash_file = _list_to_file(file_hashes)
             files = dict(file=("hashes", hash_file))
             data = dict(apikey=self.api_key)

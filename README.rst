@@ -35,8 +35,48 @@ Features
    -  Getting PCAPs
    -  Getting a malware test file
 
-pyldfire.WildFire functions
----------------------------
+Examples
+--------
+
+::
+
+    from pprint import PrettyPrinter
+    from io import BytesIO
+
+    from pyldfire import WildFire
+
+    printer = PrettyPrinter(indent=2)
+
+    wildfire = WildFire("api-key-goes-here")
+
+    # Submit a local file
+    with open("malware", "rb") as sample_file:
+        results = wildfire.submit_file(sample_file)
+    printer.pprint(results)
+
+    # File Hashes can be MD5,SHA1, or SHA256
+    file_hash = "419251150a2f77422efa1e016d605d69"
+
+    # Download a sample to a file
+    with open("sample", "wb") as sample_file:
+        sample_file.write(wildfire.get_sample(file_hash))
+
+    # Or keep it as a file-like object in memory instead
+    sample = BytesIO(wildfire.get_sample(file_hash))
+
+    # Same for PCAPs and PDF reports
+
+    # Get a verdict
+    verdict = wildfire.get_verdicts([file_hash])
+
+    # Get analysis results
+    results = wildfire.get_report(file_hash)
+
+    # Test your firewall
+    wildfire.get_malware_test_file()
+
+pyldfire.WildFire methods
+-------------------------
 
 ``__init__(self, api_key, host='wildfire.paloaltonetworks.com', proxies=None, verify=True)``
 
