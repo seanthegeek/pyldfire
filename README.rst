@@ -27,6 +27,7 @@ Features
 -  Supports HTTPS proxies and SSL/TLS validation
 -  Supports WildFire cloud or appliance
 -  Supports all WildFire 7.1 API calls
+
    -  Uploading sample files and URLs
    -  Getting verdicts
    -  Getting full reports in PDF or dictionary formats
