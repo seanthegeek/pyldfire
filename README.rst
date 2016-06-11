@@ -47,8 +47,8 @@ Initializes the WildFire class
      Args:
          api_key (str): A WildFire API Key
          host (str): The hostname of the WildFire service or appliance
-         proxies (dict): An optional dictionary containing proxy data, with https as the key, and the proxy path
-         as the value
+         proxies (dict): An optional dictionary containing proxy data,
+         with https as the key, and the proxy path as the value
          verify (bool): Verify the certificate
          verify (str): A path to a CA cert bundle
 
