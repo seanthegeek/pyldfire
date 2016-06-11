@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from io import StringIO
+from io import BytesIO
 
 from requests import Session
 import xmltodict
@@ -27,7 +27,7 @@ __version__ = '7.1.0'
 
 def _list_to_file(l):
     """Converts a list to a BytesIO object. One item per line"""
-    return StringIO('\n'.join(l))
+    return BytesIO('\n'.join(l))
 
 
 class WildFireException(RuntimeError):
