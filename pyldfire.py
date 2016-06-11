@@ -22,7 +22,7 @@ from requests import Session
 import xmltodict
 
 __author__ = 'Sean Whalen'
-__version__ = '7.1'
+__version__ = '7.1.0'
 
 
 def _list_to_file(l):
@@ -98,7 +98,16 @@ class WildFire(object):
 
         Returns:
             str: If a single file hash is passed, a string containing the verdict
-            list: If multiple hashes a passed, a list of corresponding list of _verdicts
+            list: If multiple hashes a passed, a list of corresponding list of verdict strings
+
+            Possible values:
+
+            'Benign'
+            'Malware'
+            'Greyware'
+            'Pending`
+            'Error'
+            'Not found`
 
         Raises:
             WildFireException: If an API error occurs
@@ -153,12 +162,6 @@ class WildFire(object):
     def submit_remote_file(self, url):
         """Submits a file from a remote URL for analysis
 
-        Notes:
-            This is for submitting files located at remote URLs, not web pages.
-
-        See Also:
-            `submit_urls(self, url)`
-
         Args:
             url (str): The URL where the file is located
 
@@ -167,6 +170,12 @@ class WildFire(object):
 
         Raises:
              WildFireException: If an API error occurs
+
+        Notes:
+            This is for submitting files located at remote URLs, not web pages.
+
+        See Also:
+            `submit_urls(self, url)`
         """
 
         request_url = "{0}{1}".format(self.api_root, "/submit/url")
