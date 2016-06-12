@@ -104,7 +104,7 @@ Palo Alto Networks’ firewalls
 
 ``get_pcap(self, file_hash, platform=None)``
 
-Gets a pcap from a sample analysis
+Gets a PCAP from a sample analysis
 
 ::
 
@@ -121,7 +121,7 @@ Gets a pcap from a sample analysis
          201: Android 2.3, API 10, avd2.3.
 
      Returns:
-         bytes: The PCAP bytes
+         bytes: The PCAP
 
      Raises:
           WildFireException: If an API error occurs
@@ -152,6 +152,106 @@ Gets analysis results as structured data
 
      Returns:
          dict: Analysis results
+
+     Raises:
+             WildFireException: If an API error occurs
+
+``get_sample(self, file_hash)``
+
+Gets a sample file
+
+::
+
+     Args:
+         file_hash (str): A hash of a sample
+
+     Returns:
+         bytes: The sample
+
+     Raises:
+             WildFireException: If an API error occurs
+
+``get_verdicts(self, file_hashes)``
+
+Gets the verdict for one or more samples
+
+::
+
+     Args:
+            file_hashes (list): A list of file hash strings
+            file_hashes (str): A single file hash
+
+        Returns:
+            str: If a single file hash is passed, a string containing the verdict
+            list: If multiple hashes a passed, a list of corresponding list of verdict strings
+
+            Possible values:
+
+            'Benign'
+            'Malware'
+            'Greyware'
+            'Pending`
+            'Error'
+            'Not found`
+
+        Raises:
+            WildFireException: If an API error occurs
+
+
+``submit_file(self, file_obj, filename="sample")``
+
+Submits a file to WildFire for analysis
+
+::
+
+     Args:
+            file_obj (file): The file to send
+            filename (str): An optional filename
+
+        Returns:
+            dict: Analysis results
+
+        Raises:
+             WildFireException: If an API error occurs
+
+
+`submit_remote_file(self, url)``
+
+Submits a file from a remote URL for analysis
+
+::
+
+     Args:
+            url (str): The URL where the file is located
+
+        Returns:
+            dict: Analysis results
+
+        Raises:
+             WildFireException: If an API error occurs
+
+        Notes:
+            This is for submitting files located at remote URLs, not web pages.
+
+        See Also:
+            submit_urls(self, urls)
+
+`submit_urls(self, urls)``
+
+Submits one or more URLs to a web page for analysis
+
+::
+
+     Args:
+            urls (str): A single URL
+            urls (list): A list of URLs
+
+        Returns:
+            dict: If a single URL is passed, a dictionary of analysis results
+            list: If multiple URLs are passed, a list of corresponding dictionaries containing analysis results
+
+        Raises:
+             WildFireException: If an API error occurs
 
 .. _Palo Alto Networks\` WildFire API: https://www.paloaltonetworks.com/documentation/71/wildfire/wf_api
 

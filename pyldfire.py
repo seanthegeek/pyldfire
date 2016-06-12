@@ -22,7 +22,7 @@ from requests import Session
 import xmltodict
 
 __author__ = 'Sean Whalen'
-__version__ = '7.1.1'
+__version__ = '7.1.2'
 
 
 def _list_to_file(l):
@@ -175,7 +175,7 @@ class WildFire(object):
             This is for submitting files located at remote URLs, not web pages.
 
         See Also:
-            `submit_urls(self, url)`
+            submit_urls(self, urls)
         """
 
         request_url = "{0}{1}".format(self.api_root, "/submit/url")
@@ -186,7 +186,8 @@ class WildFire(object):
 
     def submit_urls(self, urls):
         """
-        Submits a URL to a web page for analysis
+        Submits one or more URLs to a web page for analysis
+
         Args:
             urls (str): A single URL
             urls (list): A list of URLs
@@ -291,7 +292,7 @@ class WildFire(object):
         return self.session.post(request_url, data=data, stream=True).content
 
     def get_pcap(self, file_hash, platform=None):
-        """Gets a pcap from a sample analysis
+        """Gets a PCAP from a sample analysis
             Args:
                 file_hash (str): A hash of a sample
                 platform (int): One of the following integers:
@@ -305,7 +306,7 @@ class WildFire(object):
                 201: Android 2.3, API 10, avd2.3.
 
             Returns:
-                bytes: The PCAP bytes
+                bytes: The PCAP
 
             Raises:
                  WildFireException: If an API error occurs
