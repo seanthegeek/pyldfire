@@ -24,6 +24,7 @@ Features
 
 -  Python 2 and 3 support
 -  Returns native Python objects
+- Raises exceptions on API errors with error details
 -  Supports HTTPS proxies and SSL/TLS validation
 -  Supports WildFire cloud or appliance
 -  Supports all WildFire 7.1 API calls
