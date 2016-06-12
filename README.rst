@@ -215,7 +215,7 @@ Submits a file to WildFire for analysis
              WildFireException: If an API error occurs
 
 
-`submit_remote_file(self, url)``
+``submit_remote_file(self, url)``
 
 Submits a file from a remote URL for analysis
 
@@ -236,7 +236,7 @@ Submits a file from a remote URL for analysis
         See Also:
             submit_urls(self, urls)
 
-`submit_urls(self, urls)``
+``submit_urls(self, urls)``
 
 Submits one or more URLs to a web page for analysis
 
