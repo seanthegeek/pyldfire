@@ -1,4 +1,4 @@
-#!/usr/bn/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """A setuptools based setup module.
