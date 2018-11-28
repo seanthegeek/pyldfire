@@ -22,7 +22,7 @@ from requests import Session
 import xmltodict
 
 __author__ = 'Sean Whalen'
-__version__ = '7.1.3'
+__version__ = '8.1'
 
 
 def _list_to_file(l):
@@ -38,13 +38,14 @@ class WildFireException(RuntimeError):
 class WildFire(object):
     _errors = {
         401: "API key is invalid",
-        403: "Permission denied. This can occur when attempting to download benign or greyware samples.",
+        403: "Permission denied. This can occur when attempting to "
+             "download benign or greyware samples.",
         404: "Not found",
         405: "Method other than POST used",
         413: "Sample file size over max limit",
         418: "Sample file type is not supported",
         419: "Max calls per day reached",
-        421: "Invalid hash value",
+        421: "Invalid argument",
         500: "Internal WildFire error",
         513: "File upload failed"
     }
@@ -61,20 +62,23 @@ class WildFire(object):
     @staticmethod
     def _raise_errors(response, *args, **kwargs):
         """Requests response processing hook"""
-        if response.headers['content-type'].lower() == "text/xml" and len(response.text) > 0:
+        if response.headers['content-type'].lower() == "text/xml" and len(
+                response.text) > 0:
             results = xmltodict.parse(response.text)
             if "error" in results.keys():
                 raise WildFireException(results["error"]["error-message"])
         if response.status_code != 200:
             raise WildFireException(WildFire._errors[response.status_code])
 
-    def __init__(self, api_key, host="wildfire.paloaltonetworks.com", proxies=None, verify=True):
+    def __init__(self, api_key, host="wildfire.paloaltonetworks.com",
+                 proxies=None, verify=True):
         """Initializes the WildFire class
 
         Args:
             api_key (str): A WildFire API Key
             host (str): The hostname of the WildFire service or appliance
-            proxies (dict): An optional dictionary containing proxy data, with https as the key, and the proxy path
+            proxies (dict): An optional dictionary containing proxy data, with
+            https as the key, and the proxy path
             as the value
             verify (bool): Verify the certificate
             verify (str): A path to a CA cert bundle
@@ -87,7 +91,8 @@ class WildFire(object):
         self.session.proxies = proxies
         self.session.verify = verify
         self.session.hooks = dict(response=WildFire._raise_errors)
-        self.session.headers.update({"User-Agent": "pyldfire/{0}".format(__version__)})
+        self.session.headers.update({"User-Agent": "pyldfire/{0}".format(
+            __version__)})
 
     def get_verdicts(self, file_hashes):
         """Gets the verdict for one or more samples
@@ -97,17 +102,20 @@ class WildFire(object):
             file_hashes (str): A single file hash
 
         Returns:
-            str: If a single file hash is passed, a string containing the verdict
-            list: If multiple hashes a passed, a list of corresponding list of verdict strings
+            str: If a single file hash is passed, a string containing the
+            verdict
+            list: If multiple hashes a passed, a list of corresponding list of
+            verdict strings
 
             Possible values:
 
-            'Benign'
-            'Malware'
-            'Greyware'
-            'Pending`
-            'Error'
-            'Not found`
+            'benign'
+            'malware'
+            'greyware'
+            'phishing'
+            'pending`
+            'rrror'
+            'not found`
 
         Raises:
             WildFireException: If an API error occurs
@@ -125,16 +133,77 @@ class WildFire(object):
             files = dict(file=("hashes", hash_file))
             data = dict(apikey=self.api_key)
             response = self.session.post(request_url, data=data, files=files)
-            results = xmltodict.parse(response.text)['wildfire']['get-verdict-info']
+            results = xmltodict.parse(
+                response.text)['wildfire']['get-verdict-info']
             for i in range(len(results)):
-                results[i]["verdict"] = WildFire._verdicts[int(results[i]["verdict"])]
-            results = map(lambda result: result["verdict"], results)
+                results[i]["verdict"] = WildFire._verdicts[int(
+                    results[i]["verdict"])]
+            results = list(map(lambda result: result["verdict"], results))
         else:
             request_url = "{0}{1}".format(self.api_root, "/get/verdict")
             data = dict(apikey=self.api_key, hash=file_hashes)
             response = self.session.post(request_url, data=data)
-            verdict = int(xmltodict.parse(response.text)['wildfire']['get-verdict-info']['verdict'])
+            verdict = int(xmltodict.parse(
+                response.text)['wildfire']['get-verdict-info']['verdict'])
             results = WildFire._verdicts[verdict]
+
+        return results
+
+    def change_sample_verdict(self, sha256_hash, verdict, comment):
+        """
+        Change a sample's verdict
+
+        Notes:
+            Available on WildFire appliances only
+
+        Args:
+            sha256_hash (str): The SHA-256 hash of the sample
+            verdict (str): The new verdict to set
+            verdict (int): The new verdict to set
+            comment (str): A comment describing the reason for the verdict
+                           change
+
+        Returns:
+            str: A response message
+
+        Raises:
+            WildFireException: If an API error occurs
+        """
+
+        if type(verdict) != int:
+            verdict = verdict.lower()
+            verdict = self._verdict_ids[verdict]
+        request_url = "{0}{1}".format(self.api_root, "/get/verdict")
+        data = dict(apikey=self.api_key, hash=sha256_hash,
+                    verdict=verdict, comment=comment)
+        response = self.session.post(request_url, data=data)
+        results = xmltodict.parse(response)["wildfire"]["body"]
+
+        return results
+
+    def get_changed_verdicts(self, date):
+        """
+        Returns a list of samples with changed WildFire appliance verdicts
+
+        Args:
+            date (str): A starting date in ``YYY-MM-DD`` format
+
+        Notes:
+            This feature is only available on WildFire appliances.
+            Changed verdicts can only be obtained for the past 14 days.
+
+        Returns:
+            list: A list of samples with changed WildFire appliance verdicts
+
+        """
+        request_url = "{0}{1}".format(self.api_root, "/get/verdicts")
+        data = dict(apikey=self.api_key, date=date)
+        response = self.session.post(request_url, data=data)
+        results = xmltodict.parse(
+            response.text)['wildfire']
+        results = list(map(lambda r: r["get-verdict-info"], results))
+        for result in results:
+            result["verdict"] = self._verdicts[result["verdict"]]
 
         return results
 
@@ -194,7 +263,8 @@ class WildFire(object):
 
         Returns:
             dict: If a single URL is passed, a dictionary of analysis results
-            list: If multiple URLs are passed, a list of corresponding dictionaries containing analysis results
+            list: If multiple URLs are passed, a list of corresponding
+            dictionaries containing analysis results
 
         Raises:
              WildFireException: If an API error occurs
@@ -212,14 +282,17 @@ class WildFire(object):
             files = dict(file=("urls", url_file))
             data = dict(apikey=self.api_key)
             response = self.session.post(request_url, data=data, files=files)
-            results = xmltodict.parse(response.text)['wildfire']['submit-link-info']
+            results = xmltodict.parse(
+                response.text)['wildfire']['submit-link-info']
             for i in range(len(results)):
-                results[i]["verdict"] = WildFire._verdicts[int(results[i]["verdict"])]
+                results[i]["verdict"] = WildFire._verdicts[
+                    int(results[i]["verdict"])]
         else:
             request_url = "{0}{1}".format(self.api_root, "/submit/link")
             data = dict(apikey=self.api_key, url=urls)
             response = self.session.post(request_url, data=data)
-            results = xmltodict.parse(response.text)['wildfire']['submit-link-info']
+            results = xmltodict.parse(
+                response.text)['wildfire']['submit-link-info']
 
         return results
 
@@ -297,13 +370,49 @@ class WildFire(object):
                 file_hash (str): A hash of a sample
                 platform (int): One of the following integers:
 
+                WildFire Private and Global Cloud
+
                 1: Windows XP, Adobe Reader 9.3.3, Office 2003
                 2: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
                 3: Windows XP, Adobe Reader 11, Flash 11, Office 2010
                 4: Windows 7 32-bit, Adobe Reader 11, Flash 11, Office 2010
-                5: Windows 7 64bit, Adobe Reader 11, Flash 11, Office 2010
-                50: Mac OS X Mountain Lion
-                201: Android 2.3, API 10, avd2.3.
+                5: Windows 7 64-bit, Adobe Reader 11, Flash 11, Office 2010
+                100: PDF Static Analyzer
+                101: DOC/CDF Static Analyzer
+                102: Java/Jar Static Analyzer
+                103: Office 2007 Open XML Static Analyzer
+                104: Adobe Flash Static Analyzer
+                204: PE Static Analyzer
+
+                WildFire Global Cloudonly
+
+                6: Windows XP, Internet Explorer 8, Flash 11
+                20: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
+                21: Windows 7, Flash 11, Office 2010
+                50: Mac OSX Mountain Lion
+                60: Windows XP, Adobe Reader 9.4.0, Flash 10, Office 2007
+                61: Windows 7 64-bit, Adobe Reader 11, Flash 11, Office 2010
+                66: Windows 10 64-bit, Adobe Reader 11, Flash 22, Office 2010
+                105: RTF Static Analyzer
+                110: Max OSX Static Analyzer
+                200: APK Static Analyzer
+                201: Android 2.3, API 10, avd2.3.1
+                202: Android 4.1, API 16, avd4.1.1 X86
+                203: Android 4.1, API 16, avd4.1.1 ARM
+                205: Phishing Static Analyzer
+                206: Android 4.3, API 18, avd4.3 ARM
+                300: Windows XP, Internet Explorer 8, Flash 13.0.0.281, Flash
+                16.0.0.305, Elink Analyzer
+                301: Windows 7, Internet Explorer 9, Flash 13.0.0.281, Flash
+                17.0.0.169, Elink Analyzer
+                302: Windows 7, Internet Explorer 10, Flash 16.0.0.305, Flash
+                17.0.0.169, Elink Analyzer
+                303: Windows 7, Internet Explorer 11, Flash 16.0.0.305, Flash
+                17.0.0.169, Elink Analyzer
+                400: Linux (ELF Files)
+                501: BareMetal Windows 7 x64, Adobe Reader 11, Flash 11,
+                Office 2010
+                800: Archives (RAR and 7-Zip files)
 
             Returns:
                 bytes: The PCAP
@@ -320,10 +429,12 @@ class WildFire(object):
         return self.session.post(request_url, data=data, stream=True).content
 
     def get_malware_test_file(self):
-        """Gets a unique, benign malware test file that will trigger an alert on Palo Alto Networks' firewalls
+        """Gets a unique, benign malware test file that will trigger an alert
+        on Palo Alto Networks' firewalls
 
         Returns:
             bytes: A malware test file
         """
 
-        return self.session.get("{0}{1}".format(self.api_root, "/test/pe"), stream=True).content
+        return self.session.get("{0}{1}".format(self.api_root, "/test/pe"),
+                                stream=True).content
