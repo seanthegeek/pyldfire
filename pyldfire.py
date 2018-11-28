@@ -51,12 +51,23 @@ class WildFire(object):
     }
 
     _verdicts = {
-        0: "Benign",
-        1: "Malware",
-        2: "Greyware",
-        -100: "Pending",
-        -101: "Error",
-        -102: "Not found"
+        0: "benign",
+        1: "malware",
+        2: "greyware",
+        4: "phishing",
+        -100: "pending",
+        -101: "error",
+        -102: "not found"
+    }
+
+    _verdict_ids = {
+        "benign": 0,
+        "malware": 1,
+        "greyware": 2,
+        "phishing": 4,
+        "pending": -100,
+        "error": -101,
+        "not found": -102
     }
 
     @staticmethod
