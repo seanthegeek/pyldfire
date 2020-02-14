@@ -289,19 +289,17 @@ class WildFire(object):
                 multi = True
         if multi:
             request_url = "{0}{1}".format(self.api_root, "/submit/links")
-            url_file = _list_to_file(urls)
+            url_file = _list_to_file(['panlnk'] + urls)
             files = dict(file=("urls", url_file))
             data = dict(apikey=self.api_key)
             response = self.session.post(request_url, data=data, files=files)
             results = xmltodict.parse(
                 response.text)['wildfire']['submit-link-info']
-            for i in range(len(results)):
-                results[i]["verdict"] = WildFire._verdicts[
-                    int(results[i]["verdict"])]
+            
         else:
             request_url = "{0}{1}".format(self.api_root, "/submit/link")
-            data = dict(apikey=self.api_key, url=urls)
-            response = self.session.post(request_url, data=data)
+            data = dict(apikey=self.api_key, link=urls)
+            response = self.session.post(request_url, data=data, files=data)
             results = xmltodict.parse(
                 response.text)['wildfire']['submit-link-info']
 
