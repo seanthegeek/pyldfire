@@ -22,7 +22,7 @@ from requests import Session
 import xmltodict
 
 __author__ = 'Sean Whalen'
-__version__ = '8.1'
+__version__ = '9.0'
 
 
 def _list_to_file(l):
