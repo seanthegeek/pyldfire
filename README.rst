@@ -246,8 +246,7 @@ Change a sample's verdict
         sha256_hash (str): The SHA-256 hash of the sample
         verdict (str): The new verdict to set
         verdict (int): The new verdict to set
-        comment (str): A comment describing the reason for the verdict
-                       change
+        comment (str): A comment describing the reason for the verdict change
 
     Returns:
         str: A response message
